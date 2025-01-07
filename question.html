@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Опросник</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <nav class="nav-header">
+        <a href="surveys.html" class="nav-link">Мои опросы</a>
+        <div class="nav-right">
+          <a href="profile.html" class="nav-link">Профиль</a>
+          <a href="index.html" class="nav-link">Выйти</a>
+        </div>
+      </nav>
+
+      <!-- Блок для выбора роли -->
+      <div id="role-selection">
+        <h2>Выберите свою роль:</h2>
+        <select id="role-selector">
+          <option value="student">Ученик</option>
+          <option value="teacher">Преподаватель</option>
+          <option value="admin">Администратор</option>
+        </select>
+        <button id="role-submit">Подтвердить</button>
+      </div>
+
+      <!-- Форма для создания опросов -->
+      <form id="survey-form" style="display: none">
+        <h2>Создание опроса</h2>
+        <div class="form-header">
+          <input
+            type="text"
+            id="survey-title"
+            class="survey-title-input"
+            placeholder="Название опроса"
+            value="Новый опрос"
+          />
+          <p class="description">Описание опроса</p>
+        </div>
+
+        <div class="question-container">
+          <div class="question">
+            <input
+              type="text"
+              class="question-title"
+              placeholder="Вопрос без заголовка"
+            />
+            <select class="question-type">
+              <option value="text">Текст</option>
+              <option value="radio">Один из списка</option>
+              <option value="checkbox">Несколько из списка</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="button" id="add-question">Добавить вопрос</button>
+        <button type="submit" id="save-form">Сохранить</button>
+      </form>
+
+      <!-- Блок для прохождения тестов -->
+      <div id="survey-list" style="display: none">
+        <h2>Опросы для прохождения</h2>
+        <ul id="survey-items"></ul>
+      </div>
+
+      <!-- Блок для подключения учеников -->
+      <div id="student-management" style="display: none">
+        <h2>Подключение учеников</h2>
+        <form id="add-student-form">
+          <input
+            type="text"
+            id="student-name"
+            placeholder="Имя ученика"
+            required
+          />
+          <button type="submit">Добавить ученика</button>
+        </form>
+        <ul id="student-list"></ul>
+      </div>
+    </div>
+    <script src="survey.js"></script>
+  </body>
+</html>

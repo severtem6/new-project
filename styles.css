@@ -1,0 +1,344 @@
+/* Общие стили */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f9f9f9;
+  color: #333;
+  line-height: 1.6;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Шапка навигации */
+.nav-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #007bff;
+  padding: 15px 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.nav-header .nav-link {
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  margin-right: 15px;
+}
+
+.nav-header .nav-link:hover {
+  text-decoration: underline;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+}
+
+/* Блок выбора роли */
+#role-selection {
+  margin-bottom: 20px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #f5f5f5;
+}
+
+#role-selection h2 {
+  margin: 0 0 10px;
+}
+
+#role-selector {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+/* Форма опроса */
+#survey-form {
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #f5f5f5;
+}
+
+.form-header {
+  margin-bottom: 20px;
+}
+
+.survey-title-input {
+  width: 100%;
+  padding: 10px;
+  font-size: 18px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
+}
+
+.description {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.question-container {
+  margin-bottom: 20px;
+}
+
+.question {
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  margin-bottom: 10px;
+}
+
+.question-title {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
+}
+
+.question-type {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+button {
+  padding: 10px 15px;
+  font-size: 14px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+#add-question {
+  background-color: #28a745;
+  color: #fff;
+}
+
+#save-form {
+  background-color: #007bff;
+  color: #fff;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+/* Список опросов */
+#survey-list {
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #f5f5f5;
+}
+
+#survey-list h2 {
+  margin-bottom: 15px;
+}
+
+#survey-items {
+  list-style: none;
+  padding: 0;
+}
+
+#survey-items li {
+  padding: 10px 15px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.github-auth-btn {
+  background-color: #24292e;
+  color: #fff;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+  background: #24292e;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.github-auth-btn:hover {
+  opacity: 0.9;
+}
+
+.github-auth-btn::before {
+  content: "";
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+  background-image: url('data:image/svg+xml,<svg viewBox="0 0 16 16" fill="%23fff" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.yandex-auth-btn {
+  background-color: #fc3f1d;
+  color: #fff;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+  background: #fc3f1d;
+  box-shadow: 0 4px 12px rgba(252, 63, 29, 0.15);
+}
+
+.yandex-auth-btn:hover {
+  opacity: 0.9;
+}
+
+.yandex-auth-btn::before {
+  content: "";
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23fff"><path d="M2.04 12c0-5.523 4.476-10 10-10 5.522 0 10 4.477 10 10s-4.478 10-10 10c-5.524 0-10-4.477-10-10zm13.126-5.602v11.204h2.219V6.398h-2.219zm-3.917 11.204V6.398H9.03v7.95L5.91 6.398H3.89v11.204h2.219v-8.482l3.12 8.482h2.02z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* Стили для страницы регистрации */
+.container.registration {
+  max-width: 480px;
+  margin: 40px auto;
+  padding: 40px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(138, 43, 226, 0.2);
+  backdrop-filter: blur(8px);
+}
+
+.registration h1 {
+  text-align: center;
+  color: #2d1b69;
+  font-size: 28px;
+  margin-bottom: 30px;
+  font-weight: 600;
+  text-shadow: 0 0 20px rgba(138, 43, 226, 0.1);
+}
+
+.registration .form-group {
+  margin-bottom: 24px;
+}
+
+.registration label {
+  padding-left: 3px;
+  display: block;
+  margin-bottom: 8px;
+  color: #4a3b76;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.registration input {
+  width: 100%;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.registration input:focus {
+  border-color: #8a2be2;
+  box-shadow: 0 0 15px rgba(138, 43, 226, 0.2);
+  outline: none;
+}
+
+.registration button[type="submit"] {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #8a2be2 0%, #9400d3 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 24px;
+  transition: all 0.3s ease;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.registration button[type="submit"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(138, 43, 226, 0.3);
+  background: linear-gradient(135deg, #9400d3 0%, #8a2be2 100%);
+}
+
+.auth-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(138, 43, 226, 0.2);
+}
+
+.auth-buttons button {
+  width: 100%;
+  justify-content: center;
+  margin: 0;
+  padding: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.registration-footer {
+  text-align: center;
+  margin-top: 24px;
+  color: bla;
+  font-size: 14px;
+}
+
+.registration-footer a {
+  color: #8a2be2;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.registration-footer a:hover {
+  color: #9400d3;
+  text-decoration: none;
+  text-shadow: 0 0 8px rgba(138, 43, 226, 0.4);
+}
+
+.auth-buttons button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
