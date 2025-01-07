@@ -118,7 +118,7 @@ function sendAuthCode() {
     });
 }
 
-// Добавляем обработчик для формы регистрации по email
+// Обработчик формы регистрации по email
 document
   .getElementById("emailRegistrationForm")
   .addEventListener("submit", function (e) {
@@ -141,7 +141,7 @@ document
     }
 
     // Отправка данных на сервер
-    fetch("/api/register", {
+    fetch("/.netlify/functions/api/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -155,8 +155,8 @@ document
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
-          alert("Регистрация успешна!");
-          window.location.href = "/login.html"; // Перенаправление на страницу входа
+          window.location.href = "/profile.html"; // Сначала перенаправляем
+          alert("Регистрация успешна!"); // Потом показываем сообщение
         } else {
           alert(data.message || "Ошибка при регистрации");
         }
@@ -188,7 +188,7 @@ document
       .then((data) => {
         if (data.success) {
           alert("Регистрация успешна!");
-          window.location.href = "/login.html";
+          window.location.href = "/profile.html"; // Изменено с /login.html
         } else {
           alert(data.message || "Ошибка проверки кода");
         }

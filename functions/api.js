@@ -21,7 +21,6 @@ function generateVerificationCode() {
 }
 
 exports.handler = async (event) => {
-  // Проверяем метод запроса
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
@@ -31,6 +30,36 @@ exports.handler = async (event) => {
 
   const body = JSON.parse(event.body);
   const { path } = event;
+
+  // Обработка регистрации по email (добавляем первым)
+  if (path === "/.netlify/functions/api/register") {
+    try {
+      const { username, email, password } = body;
+
+      // Здесь можно добавить проверку на существующего пользователя
+      // и сохранение в базу данных
+
+      console.log("Регистрация нового пользователя:", { username, email });
+
+      return {
+        statusCode: 200,
+        body: JSON.stringify({
+          success: true,
+          message: "Регистрация успешна",
+          redirect: "/profile.html",
+        }),
+      };
+    } catch (error) {
+      console.error("Ошибка регистрации:", error);
+      return {
+        statusCode: 500,
+        body: JSON.stringify({
+          success: false,
+          message: "Ошибка при регистрации: " + error.message,
+        }),
+      };
+    }
+  }
 
   // Обработка отправки кода
   if (path === "/.netlify/functions/api/send-auth-code") {
@@ -129,6 +158,33 @@ exports.handler = async (event) => {
       statusCode: 200,
       body: JSON.stringify({ success: true }),
     };
+  }
+
+  // Добавьте в существующий файл
+  if (path === "/.netlify/functions/api/save-profile") {
+    try {
+      const { name, age, occupation, interests } = body;
+
+      // Здесь можно добавить сохранение в базу данных
+      console.log("Сохранение профиля:", { name, age, occupation, interests });
+
+      return {
+        statusCode: 200,
+        body: JSON.stringify({
+          success: true,
+          message: "Профиль успешно сохранен",
+        }),
+      };
+    } catch (error) {
+      console.error("Ошибка сохранения профиля:", error);
+      return {
+        statusCode: 500,
+        body: JSON.stringify({
+          success: false,
+          message: "Ошибка сохранения профиля",
+        }),
+      };
+    }
   }
 
   return {
