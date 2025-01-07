@@ -46,7 +46,7 @@ exports.handler = async (event) => {
         body: JSON.stringify({
           success: true,
           message: "Регистрация успешна",
-          redirect: "/profile.html",
+          redirect: "/surveys.html",
         }),
       };
     } catch (error) {
@@ -158,33 +158,6 @@ exports.handler = async (event) => {
       statusCode: 200,
       body: JSON.stringify({ success: true }),
     };
-  }
-
-  // Добавьте в существующий файл
-  if (path === "/.netlify/functions/api/save-profile") {
-    try {
-      const { name, age, occupation, interests } = body;
-
-      // Здесь можно добавить сохранение в базу данных
-      console.log("Сохранение профиля:", { name, age, occupation, interests });
-
-      return {
-        statusCode: 200,
-        body: JSON.stringify({
-          success: true,
-          message: "Профиль успешно сохранен",
-        }),
-      };
-    } catch (error) {
-      console.error("Ошибка сохранения профиля:", error);
-      return {
-        statusCode: 500,
-        body: JSON.stringify({
-          success: false,
-          message: "Ошибка сохранения профиля",
-        }),
-      };
-    }
   }
 
   return {

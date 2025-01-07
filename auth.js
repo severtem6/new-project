@@ -155,8 +155,8 @@ document
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
-          window.location.href = "/profile.html"; // Сначала перенаправляем
-          alert("Регистрация успешна!"); // Потом показываем сообщение
+          window.location.href = "surveys.html";
+          alert("Регистрация успешна!");
         } else {
           alert(data.message || "Ошибка при регистрации");
         }
@@ -188,7 +188,7 @@ document
       .then((data) => {
         if (data.success) {
           alert("Регистрация успешна!");
-          window.location.href = "/profile.html"; // Изменено с /login.html
+          window.location.href = "surveys.html";
         } else {
           alert(data.message || "Ошибка проверки кода");
         }
