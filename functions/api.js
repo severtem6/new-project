@@ -4,6 +4,17 @@ const crypto = require("crypto");
 // Хранилище кодов подтверждения
 const verificationCodes = new Map();
 
+// Настройка транспорта для отправки почты
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
 // Генерация случайного кода
 function generateVerificationCode() {
   return crypto.randomInt(100000, 999999).toString();
@@ -46,8 +57,20 @@ exports.handler = async (event) => {
         timestamp: Date.now(),
       });
 
-      // В реальном приложении здесь будет отправка email
-      console.log(`Код подтверждения для ${email}: ${verificationCode}`);
+      // Отправляем код на почту
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: "Код подтверждения регистрации",
+        html: `
+          <h1>Код подтверждения</h1>
+          <p>Ваш код для регистрации: <strong>${verificationCode}</strong></p>
+          <p>Код действителен в течение 10 минут.</p>
+        `,
+      };
+
+      await transporter.sendMail(mailOptions);
+      console.log("Письмо отправлено успешно");
 
       return {
         statusCode: 200,
@@ -59,7 +82,7 @@ exports.handler = async (event) => {
         statusCode: 500,
         body: JSON.stringify({
           success: false,
-          message: "Ошибка генерации кода",
+          message: "Ошибка отправки кода: " + error.message,
         }),
       };
     }
