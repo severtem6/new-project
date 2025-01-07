@@ -1,0 +1,7 @@
+[build]
+  command = "npm install"
+  functions = "functions"
+  publish = "."
+
+[functions]
+  directory = "functions" 

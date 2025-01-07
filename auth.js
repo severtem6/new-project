@@ -78,3 +78,123 @@ function initGithubAuth() {
   // Перенаправляем пользователя на страницу авторизации GitHub
   window.location.href = githubAuthUrl;
 }
+
+function showEmailRegistration() {
+  document.getElementById("emailRegistrationForm").style.display = "block";
+  document.getElementById("codeRegistrationForm").style.display = "none";
+  document.querySelector(".auth-methods").style.display = "none";
+}
+
+function showCodeRegistration() {
+  document.getElementById("codeRegistrationForm").style.display = "block";
+  document.getElementById("emailRegistrationForm").style.display = "none";
+  document.querySelector(".auth-methods").style.display = "none";
+}
+
+function sendAuthCode() {
+  const email = document.getElementById("code-email").value;
+  if (!email) {
+    alert("Пожалуйста, введите email");
+    return;
+  }
+
+  // Здесь должен быть запрос к серверу для отправки кода
+  fetch("/.netlify/functions/api/send-auth-code", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        document.querySelector(".auth-code-group").style.display = "block";
+      }
+    })
+    .catch((error) => {
+      console.error("Ошибка:", error);
+      alert("Не удалось отправить код. Попробуйте позже.");
+    });
+}
+
+// Добавляем обработчик для формы регистрации по email
+document
+  .getElementById("emailRegistrationForm")
+  .addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const username = document.getElementById("username").value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirm-password").value;
+
+    // Валидация
+    if (password !== confirmPassword) {
+      alert("Пароли не совпадают");
+      return;
+    }
+
+    if (password.length < 6) {
+      alert("Пароль должен содержать минимум 6 символов");
+      return;
+    }
+
+    // Отправка данных на сервер
+    fetch("/api/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username,
+        email,
+        password,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          alert("Регистрация успешна!");
+          window.location.href = "/login.html"; // Перенаправление на страницу входа
+        } else {
+          alert(data.message || "Ошибка при регистрации");
+        }
+      })
+      .catch((error) => {
+        console.error("Ошибка:", error);
+        alert("Произошла ошибка при регистрации");
+      });
+  });
+
+// Обработчик формы регистрации по коду
+document
+  .getElementById("codeRegistrationForm")
+  .addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const email = document.getElementById("code-email").value;
+    const code = document.getElementById("auth-code").value;
+
+    // Проверяем код
+    fetch("/.netlify/functions/api/verify-code", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, code }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          alert("Регистрация успешна!");
+          window.location.href = "/login.html";
+        } else {
+          alert(data.message || "Ошибка проверки кода");
+        }
+      })
+      .catch((error) => {
+        console.error("Ошибка:", error);
+        alert("Произошла ошибка при проверке кода");
+      });
+  });

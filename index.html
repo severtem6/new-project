@@ -10,15 +10,52 @@
   <body>
     <div class="container registration">
       <h1>Создать аккаунт</h1>
-      <form action="/register" method="POST">
+
+      <div class="auth-methods">
+        <button
+          onclick="showEmailRegistration()"
+          class="auth-method-btn email-auth-btn"
+        >
+          Регистрация по email
+        </button>
+        <button
+          onclick="showCodeRegistration()"
+          class="auth-method-btn code-auth-btn"
+        >
+          Регистрация по коду
+        </button>
+        <button
+          onclick="initYandexAuth()"
+          class="auth-method-btn yandex-auth-btn"
+        >
+          Войти через Яндекс
+        </button>
+        <button
+          onclick="initGithubAuth()"
+          class="auth-method-btn github-auth-btn"
+        >
+          Войти через GitHub
+        </button>
+      </div>
+
+      <!-- Форма регистрации по email -->
+      <form
+        action="/register"
+        method="POST"
+        id="emailRegistrationForm"
+        style="display: none"
+      >
         <div class="form-group">
           <label for="username">Имя пользователя</label>
           <input
             type="text"
             id="username"
             name="username"
-            placeholder="Введите имя пользователя"
             required
+            minlength="3"
+            maxlength="30"
+            pattern="[a-zA-Z0-9_-]+"
+            placeholder="Минимум 3 символа, только буквы, цифры и _-"
           />
         </div>
         <div class="form-group">
@@ -27,8 +64,9 @@
             type="email"
             id="email"
             name="email"
-            placeholder="Введите email"
             required
+            placeholder="example@domain.com"
+            pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
           />
         </div>
         <div class="form-group">
@@ -37,8 +75,9 @@
             type="password"
             id="password"
             name="password"
-            placeholder="Введите пароль"
             required
+            minlength="6"
+            placeholder="Минимум 6 символов"
           />
         </div>
         <div class="form-group">
@@ -47,21 +86,56 @@
             type="password"
             id="confirm-password"
             name="confirm-password"
-            placeholder="Повторите пароль"
             required
+            minlength="6"
+            placeholder="Повторите пароль"
           />
         </div>
         <button type="submit">Зарегистрироваться</button>
       </form>
 
-      <div class="auth-buttons">
-        <button onclick="initYandexAuth()" class="yandex-auth-btn">
-          Войти через Яндекс
-        </button>
-        <button onclick="initGithubAuth()" class="github-auth-btn">
-          Войти через GitHub
-        </button>
-      </div>
+      <!-- Форма регистрации по коду -->
+      <form
+        action="/register-with-code"
+        method="POST"
+        id="codeRegistrationForm"
+        style="display: none"
+      >
+        <div class="form-group">
+          <label for="code-email">Email</label>
+          <div class="email-group">
+            <input type="email" id="code-email" name="email" required />
+            <button
+              type="button"
+              onclick="sendAuthCode()"
+              class="send-code-btn"
+            >
+              Получить код
+            </button>
+          </div>
+        </div>
+        <div class="form-group auth-code-group" style="display: none">
+          <label for="auth-code">Код подтверждения</label>
+          <input
+            type="text"
+            id="auth-code"
+            name="auth-code"
+            maxlength="6"
+            required
+          />
+          <div class="code-hint">
+            Код отправлен на вашу почту.
+            <button
+              type="button"
+              onclick="sendAuthCode()"
+              class="resend-code-btn"
+            >
+              Отправить повторно
+            </button>
+          </div>
+        </div>
+        <button type="submit">Подтвердить</button>
+      </form>
 
       <div class="registration-footer">
         Уже есть аккаунт? <a href="#">Войти</a>
