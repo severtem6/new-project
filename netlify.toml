@@ -2,17 +2,26 @@
   functions = "functions"
   publish = "."
 
+[build.environment]
+  NODE_VERSION = "18.x"
+
 [functions]
   node_bundler = "esbuild"
-  external_node_modules = ["ioredis"]
-  included_files = ["functions/config/redis.js"]
+  external_node_modules = ["ioredis", "pg", "pg-pool"]
 
 [dev]
   framework = "#static"
+  publish = "."
+  port = 8888
   targetPort = 8888
-  edge_functions = false
+  command = "npm start"
 
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/api/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
   status = 200 

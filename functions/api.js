@@ -1,6 +1,7 @@
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
 const redis = require("../config/redis");
+const pool = require("../config/postgres");
 
 // В начале файла после импортов добавим тестовый код:
 redis.set("test", "Hello Redis!", async (err) => {
@@ -39,6 +40,18 @@ transporter.verify(function (error, success) {
 // Генерация случайного кода
 function generateVerificationCode() {
   return crypto.randomInt(100000, 999999).toString();
+}
+
+// Добавим функцию логирования
+async function logAction(action, userEmail, details) {
+  try {
+    await pool.query(
+      "INSERT INTO logs (action, user_email, details) VALUES ($1, $2, $3)",
+      [action, userEmail, JSON.stringify(details)]
+    );
+  } catch (error) {
+    console.error("Ошибка логирования:", error);
+  }
 }
 
 exports.handler = async (event) => {
@@ -118,9 +131,13 @@ exports.handler = async (event) => {
     try {
       const { username, email, password } = body;
 
-      // Проверяем, существует ли пользователь
-      const existingUser = await redis.hget("users", email);
-      if (existingUser) {
+      // Проверяем, существует ли пользователь в PostgreSQL
+      const userExists = await pool.query(
+        "SELECT email FROM users WHERE email = $1",
+        [email]
+      );
+
+      if (userExists.rows.length > 0) {
         return {
           statusCode: 400,
           body: JSON.stringify({
@@ -136,21 +153,34 @@ exports.handler = async (event) => {
         .update(password)
         .digest("hex");
 
-      // Сохраняем пользователя
+      // Сохраняем пользователя в PostgreSQL
+      await pool.query(
+        "INSERT INTO users (email, username, password, role) VALUES ($1, $2, $3, $4)",
+        [email, username, hashedPassword, "student"]
+      );
+
+      // Сохраняем также в Redis для обратной совместимости
       const user = {
         username,
         email,
         password: hashedPassword,
         createdAt: Date.now(),
       };
-
       await redis.hset("users", email, JSON.stringify(user));
+
+      // Добавляем лог
+      await logAction("register", email, { username });
 
       return {
         statusCode: 200,
         body: JSON.stringify({
           success: true,
           message: "Регистрация успешна",
+          user: {
+            email,
+            username,
+            role,
+          },
         }),
       };
     } catch (error) {
@@ -244,13 +274,17 @@ exports.handler = async (event) => {
       // Удаляем использованный код
       await redis.del(`verification:${email}`);
 
-      // Создаем нового пользователя
+      // Создаем нового пользователя в PostgreSQL
+      await pool.query(
+        "INSERT INTO users (email) VALUES ($1) ON CONFLICT (email) DO NOTHING",
+        [email]
+      );
+
+      // Сохраняем также в Redis для обратной совместимости
       const user = {
         email,
         createdAt: Date.now(),
       };
-
-      // Сохраняем пользователя в Redis
       await redis.hset("users", email, JSON.stringify(user));
 
       return {
@@ -258,6 +292,10 @@ exports.handler = async (event) => {
         body: JSON.stringify({
           success: true,
           message: "Регистрация успешна",
+          user: {
+            email,
+            role: "student",
+          },
         }),
       };
     } catch (error) {
@@ -336,6 +374,17 @@ exports.handler = async (event) => {
         // Добавляем ID опроса в список опросов пользователя
         await redis.sadd(`user:${authorEmail}:surveys`, surveyId);
         console.log("ID опроса добавлен в список пользователя");
+
+        // Добавляем запись в аналитику
+        await pool.query(
+          "INSERT INTO analytics (survey_id, action_type, user_email, metadata) VALUES ($1, $2, $3, $4)",
+          [
+            surveyId,
+            "create",
+            authorEmail,
+            JSON.stringify({ title, questionsCount: questions.length }),
+          ]
+        );
 
         return {
           statusCode: 200,
@@ -703,6 +752,123 @@ exports.handler = async (event) => {
         body: JSON.stringify({
           success: false,
           message: "Ошибка при получении пользователей: " + error.message,
+        }),
+      };
+    }
+  }
+
+  // Тестовый эндпоинт для проверки PostgreSQL
+  if (path === "/.netlify/functions/api/test-db") {
+    try {
+      const result = await pool.query("SELECT * FROM users");
+      return {
+        statusCode: 200,
+        body: JSON.stringify({
+          success: true,
+          users: result.rows,
+        }),
+      };
+    } catch (error) {
+      console.error("Ошибка тестирования БД:", error);
+      return {
+        statusCode: 500,
+        body: JSON.stringify({
+          success: false,
+          message: "Ошибка подключения к БД: " + error.message,
+        }),
+      };
+    }
+  }
+
+  // Обновление роли пользователя
+  if (path === "/.netlify/functions/api/update-role") {
+    try {
+      const { email, role } = body;
+
+      await pool.query("UPDATE users SET role = $1 WHERE email = $2", [
+        role,
+        email,
+      ]);
+
+      return {
+        statusCode: 200,
+        body: JSON.stringify({
+          success: true,
+          message: "Роль успешно обновлена",
+        }),
+      };
+    } catch (error) {
+      console.error("Ошибка обновления роли:", error);
+      return {
+        statusCode: 500,
+        body: JSON.stringify({
+          success: false,
+          message: "Ошибка при обновлении роли: " + error.message,
+        }),
+      };
+    }
+  }
+
+  // Обработка входа
+  if (path === "/.netlify/functions/api/login") {
+    try {
+      const { login, password } = body;
+
+      // Хешируем пароль для сравнения
+      const hashedPassword = crypto
+        .createHash("sha256")
+        .update(password)
+        .digest("hex");
+
+      // Ищем пользователя по email или username
+      const result = await pool.query(
+        "SELECT * FROM users WHERE (email = $1 OR username = $1)",
+        [login]
+      );
+
+      if (result.rows.length === 0) {
+        return {
+          statusCode: 401,
+          body: JSON.stringify({
+            success: false,
+            message: "Пользователь не найден",
+          }),
+        };
+      }
+
+      const user = result.rows[0];
+
+      if (user.password !== hashedPassword) {
+        return {
+          statusCode: 401,
+          body: JSON.stringify({
+            success: false,
+            message: "Неверный пароль",
+          }),
+        };
+      }
+
+      // Не отправляем пароль клиенту
+      delete user.password;
+
+      // Логируем успешный вход
+      await logAction("login", user.email, { method: "password" });
+
+      return {
+        statusCode: 200,
+        body: JSON.stringify({
+          success: true,
+          message: "Вход выполнен успешно",
+          user,
+        }),
+      };
+    } catch (error) {
+      console.error("Ошибка входа:", error);
+      return {
+        statusCode: 500,
+        body: JSON.stringify({
+          success: false,
+          message: "Ошибка при входе: " + error.message,
         }),
       };
     }

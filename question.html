@@ -121,5 +121,36 @@
     </div>
 
     <script src="survey.js"></script>
+
+    <script>
+      // После выбора роли
+      roleSubmit.addEventListener("click", async () => {
+        const selectedRole = roleSelector.value;
+        if (!selectedRole) {
+          alert("Пожалуйста, выберите роль");
+          return;
+        }
+
+        try {
+          // Обновляем роль в PostgreSQL
+          await fetch("/.netlify/functions/api/update-role", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email: localStorage.getItem("userEmail"),
+              role: selectedRole,
+            }),
+          });
+
+          localStorage.setItem("userRole", selectedRole);
+          window.location.href = "profile.html";
+        } catch (error) {
+          console.error("Ошибка обновления роли:", error);
+          alert("Произошла ошибка при обновлении роли");
+        }
+      });
+    </script>
   </body>
 </html>

@@ -4,11 +4,17 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
+    "cors": "^2.8.5",
     "crypto": "^1.x.x",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
     "ioredis": "^5.x.x",
-    "nodemailer": "^6.x.x"
+    "nodemailer": "^6.x.x",
+    "pg": "^8.11.3",
+    "pg-pool": "^3.6.1"
   },
   "scripts": {
-    "start": "node server.js"
+    "start": "netlify dev",
+    "build": "# your build script"
   }
 }

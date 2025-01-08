@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", checkAuth);
 document
   .getElementById("emailRegistrationForm")
   .addEventListener("submit", async function (e) {
-    e.preventDefault(); // Предотвращаем стандартную отправку формы
+    e.preventDefault();
 
     const username = document.getElementById("username").value;
     const email = document.getElementById("email").value;
@@ -108,15 +108,6 @@ document
     }
 
     try {
-      console.log("Отправляем запрос на регистрацию:", {
-        url: "/.netlify/functions/api/register",
-        body: {
-          username,
-          email,
-          password,
-        },
-      });
-
       const response = await fetch("/.netlify/functions/api/register", {
         method: "POST",
         headers: {
@@ -135,6 +126,7 @@ document
         // Сохраняем данные пользователя
         localStorage.setItem("userEmail", email);
         localStorage.setItem("username", username);
+        localStorage.setItem("userRole", "student"); // Роль по умолчанию
 
         // Перенаправляем на страницу выбора роли
         window.location.href = "question.html";
@@ -170,6 +162,7 @@ document
       if (data.success) {
         // Сохраняем email пользователя
         localStorage.setItem("userEmail", email);
+        localStorage.setItem("userRole", "student"); // Роль по умолчанию
 
         // Перенаправляем на страницу выбора роли
         window.location.href = "question.html";

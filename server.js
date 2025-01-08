@@ -5,6 +5,7 @@ const nodemailer = require("nodemailer");
 const crypto = require("crypto");
 const cors = require("cors");
 const app = express();
+const pool = require("./functions/config/postgres");
 
 // Middleware
 app.use(cors());
@@ -152,6 +153,12 @@ app.post("/api/verify-code", (req, res) => {
   verificationCodes.delete(email);
 
   res.json({ success: true });
+});
+
+// Добавьте обработку ошибок подключения к БД
+pool.on("error", (err) => {
+  console.error("Unexpected error on idle client", err);
+  process.exit(-1);
 });
 
 const PORT = process.env.PORT || 5501;
