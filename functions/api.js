@@ -1,7 +1,7 @@
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
-const redis = require("../config/redis");
-const pool = require("../config/postgres");
+const redis = require("./redis");
+const pool = require("./postgres");
 
 // В начале файла после импортов добавим тестовый код:
 redis.set("test", "Hello Redis!", async (err) => {

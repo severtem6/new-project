@@ -1,11 +1,8 @@
 {
   "name": "your-app-name",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
   "dependencies": {
     "cors": "^2.8.5",
-    "crypto": "^1.x.x",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "ioredis": "^5.x.x",
@@ -14,7 +11,6 @@
     "pg-pool": "^3.6.1"
   },
   "scripts": {
-    "dev": "netlify dev",
-    "build": "echo 'No build required'"
+    "start": "node server.js"
   }
 }
