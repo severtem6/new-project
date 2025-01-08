@@ -47,7 +47,6 @@ function logout() {
 function checkAuth() {
   const protectedPages = [
     "surveys.html",
-    "question.html",
     "profile.html",
     "view-survey.html",
     "take-survey.html",
@@ -56,8 +55,8 @@ function checkAuth() {
   const currentPage = window.location.pathname.split("/").pop();
 
   if (protectedPages.includes(currentPage)) {
-    const currentUser = localStorage.getItem("currentUser");
-    if (!currentUser) {
+    const userEmail = localStorage.getItem("userEmail");
+    if (!userEmail) {
       window.location.href = "index.html";
     }
   }
@@ -66,6 +65,156 @@ function checkAuth() {
 // Вызываем проверку при загрузке страницы
 document.addEventListener("DOMContentLoaded", checkAuth);
 
+// Обработчик формы регистрации по email
+document
+  .getElementById("emailRegistrationForm")
+  .addEventListener("submit", async function (e) {
+    e.preventDefault(); // Предотвращаем стандартную отправку формы
+
+    const username = document.getElementById("username").value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirm-password").value;
+
+    // Валидация
+    if (!username || !email || !password || !confirmPassword) {
+      alert("Пожалуйста, заполните все поля");
+      return;
+    }
+
+    // Валидация username
+    if (username.length < 3) {
+      alert("Имя пользователя должно содержать минимум 3 символа");
+      return;
+    }
+
+    // Валидация email
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+      alert("Пожалуйста, введите корректный email");
+      return;
+    }
+
+    // Валидация пароля
+    if (password.length < 6) {
+      alert("Пароль должен содержать минимум 6 символов");
+      return;
+    }
+
+    // Проверка совпадения паролей
+    if (password !== confirmPassword) {
+      alert("Пароли не совпадают");
+      return;
+    }
+
+    try {
+      console.log("Отправляем запрос на регистрацию:", {
+        url: "/.netlify/functions/api/register",
+        body: {
+          username,
+          email,
+          password,
+        },
+      });
+
+      const response = await fetch("/.netlify/functions/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username,
+          email,
+          password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Сохраняем данные пользователя
+        localStorage.setItem("userEmail", email);
+        localStorage.setItem("username", username);
+
+        // Перенаправляем на страницу выбора роли
+        window.location.href = "question.html";
+      } else {
+        alert(data.message || "Ошибка при регистрации");
+      }
+    } catch (error) {
+      console.error("Ошибка:", error);
+      alert("Произошла ошибка при регистрации");
+    }
+  });
+
+// Обработчик формы регистрации по коду
+document
+  .getElementById("codeRegistrationForm")
+  .addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const email = document.getElementById("code-email").value;
+    const code = document.getElementById("auth-code").value;
+
+    try {
+      const response = await fetch("/.netlify/functions/api/verify-code", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, code }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Сохраняем email пользователя
+        localStorage.setItem("userEmail", email);
+
+        // Перенаправляем на страницу выбора роли
+        window.location.href = "question.html";
+      } else {
+        alert(data.message || "Неверный код");
+      }
+    } catch (error) {
+      console.error("Ошибка:", error);
+      alert("Произошла ошибка при проверке кода");
+    }
+  });
+
+// Функция отправки кода
+async function sendAuthCode() {
+  const email = document.getElementById("code-email").value;
+  if (!email) {
+    alert("Пожалуйста, введите email");
+    return;
+  }
+
+  try {
+    const response = await fetch("/.netlify/functions/api/send-auth-code", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+    });
+
+    const data = await response.json();
+    console.log("Ответ от сервера при отправке кода:", data);
+
+    if (data.success) {
+      document.querySelector(".auth-code-group").style.display = "block";
+      alert("Код отправлен на вашу почту");
+    } else {
+      alert(data.message || "Ошибка отправки кода");
+    }
+  } catch (error) {
+    console.error("Ошибка:", error);
+    alert("Не удалось отправить код. Попробуйте позже.");
+  }
+}
+
+// Функции для работы с GitHub OAuth
 function initGithubAuth() {
   // GitHub OAuth параметры
   const clientId = "ваш_github_client_id";
@@ -90,111 +239,3 @@ function showCodeRegistration() {
   document.getElementById("emailRegistrationForm").style.display = "none";
   document.querySelector(".auth-methods").style.display = "none";
 }
-
-function sendAuthCode() {
-  const email = document.getElementById("code-email").value;
-  if (!email) {
-    alert("Пожалуйста, введите email");
-    return;
-  }
-
-  // Здесь должен быть запрос к серверу для отправки кода
-  fetch("/.netlify/functions/api/send-auth-code", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ email }),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.success) {
-        document.querySelector(".auth-code-group").style.display = "block";
-      }
-    })
-    .catch((error) => {
-      console.error("Ошибка:", error);
-      alert("Не удалось отправить код. Попробуйте позже.");
-    });
-}
-
-// Обработчик формы регистрации по email
-document
-  .getElementById("emailRegistrationForm")
-  .addEventListener("submit", function (e) {
-    e.preventDefault();
-
-    const username = document.getElementById("username").value;
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    const confirmPassword = document.getElementById("confirm-password").value;
-
-    // Валидация
-    if (password !== confirmPassword) {
-      alert("Пароли не совпадают");
-      return;
-    }
-
-    if (password.length < 6) {
-      alert("Пароль должен содержать минимум 6 символов");
-      return;
-    }
-
-    // Отправка данных на сервер
-    fetch("/.netlify/functions/api/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        username,
-        email,
-        password,
-      }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success) {
-          window.location.href = "surveys.html";
-          alert("Регистрация успешна!");
-        } else {
-          alert(data.message || "Ошибка при регистрации");
-        }
-      })
-      .catch((error) => {
-        console.error("Ошибка:", error);
-        alert("Произошла ошибка при регистрации");
-      });
-  });
-
-// Обработчик формы регистрации по коду
-document
-  .getElementById("codeRegistrationForm")
-  .addEventListener("submit", function (e) {
-    e.preventDefault();
-
-    const email = document.getElementById("code-email").value;
-    const code = document.getElementById("auth-code").value;
-
-    // Проверяем код
-    fetch("/.netlify/functions/api/verify-code", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, code }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success) {
-          alert("Регистрация успешна!");
-          window.location.href = "surveys.html";
-        } else {
-          alert(data.message || "Ошибка проверки кода");
-        }
-      })
-      .catch((error) => {
-        console.error("Ошибка:", error);
-        alert("Произошла ошибка при проверке кода");
-      });
-  });

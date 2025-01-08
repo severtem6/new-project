@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Список опросов</title>
+    <title>Мои опросы</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -11,7 +11,8 @@
       <nav class="nav-header">
         <a href="surveys.html" class="nav-link active">Мои опросы</a>
         <div class="nav-right">
-          <a href="index.html" class="nav-link">Выйти</a>
+          <a href="profile.html" class="nav-link">Профиль</a>
+          <a href="#" onclick="logout()" class="nav-link">Выйти</a>
         </div>
       </nav>
 
@@ -20,10 +21,27 @@
         <a href="question.html" class="create-survey-btn">Создать опрос</a>
       </div>
 
-      <div id="surveys-list" class="surveys-list">
+      <div id="surveys-list" class="surveys-grid">
         <!-- Сюда будут добавляться опросы -->
       </div>
     </div>
+
+    <!-- Модальное окно для прохождения опроса -->
+    <div id="survey-modal" class="modal" style="display: none">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="modal-title"></h2>
+          <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+          <form id="survey-form">
+            <div id="questions-container"></div>
+            <button type="submit" class="submit-btn">Отправить ответы</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
     <script src="surveys.js"></script>
   </body>
 </html>

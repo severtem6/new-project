@@ -1,8 +1,35 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async () => {
   const surveysList = document.getElementById("surveys-list");
+  const userEmail = localStorage.getItem("userEmail");
+  const userRole = localStorage.getItem("userRole");
 
-  function displaySurveys() {
-    const surveys = JSON.parse(localStorage.getItem("surveys") || "[]");
+  // Загрузка опросов
+  async function loadSurveys() {
+    try {
+      console.log("Загрузка опросов для:", userEmail);
+      const response = await fetch("/.netlify/functions/api/get-user-surveys", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: userEmail }),
+      });
+
+      const data = await response.json();
+      console.log("Полученные опросы:", data);
+
+      if (data.success) {
+        displaySurveys(data.surveys);
+      } else {
+        console.error("Ошибка получения опросов:", data.message);
+      }
+    } catch (error) {
+      console.error("Ошибка загрузки опросов:", error);
+    }
+  }
+
+  // Отображение опросов
+  function displaySurveys(surveys) {
     surveysList.innerHTML = "";
 
     if (surveys.length === 0) {
@@ -11,106 +38,84 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    surveys.forEach((survey, index) => {
-      const surveyCard = document.createElement("div");
-      surveyCard.className = "survey-card";
-      surveyCard.innerHTML = `
-        <h2>${survey.title || "Опрос без названия"}</h2>
-        <p>${survey.questions.length} вопросов</p>
+    surveys.forEach((survey) => {
+      const card = document.createElement("div");
+      card.className = "survey-card";
+      card.innerHTML = `
+        <h3>${survey.title}</h3>
+        <p>${survey.description || "Нет описания"}</p>
         <div class="survey-actions">
-          <button onclick="takeSurvey(${index})" class="take-btn">Пройти</button>
-          <button onclick="viewSurvey(${index})" class="view-btn">Просмотреть</button>
-          <button onclick="viewResponses(${index})" class="responses-btn">Ответы</button>
-          <button onclick="deleteSurvey(${index})" class="delete-btn">Удалить</button>
+          ${getActionButtons(survey, userRole)}
         </div>
       `;
-      surveysList.appendChild(surveyCard);
+      surveysList.appendChild(card);
     });
   }
 
-  // Первоначальное отображение опросов
-  displaySurveys();
+  // Генерация кнопок в зависимости от роли
+  function getActionButtons(survey, role) {
+    const isAuthor = survey.authorEmail === userEmail;
+    let buttons = "";
 
-  // Добавляем функции в глобальную область видимости
-  window.viewSurvey = function (index) {
-    const surveys = JSON.parse(localStorage.getItem("surveys") || "[]");
-    const survey = surveys[index];
-
-    // Создаем модальное окно
-    const modal = document.createElement("div");
-    modal.className = "modal";
-    modal.innerHTML = `
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>${survey.title || "Опрос без названия"}</h2>
-          <button class="close-modal">&times;</button>
-        </div>
-        <div class="modal-body">
-          ${survey.questions
-            .map(
-              (question, qIndex) => `
-              <div class="modal-question">
-                <h3>Вопрос ${qIndex + 1}</h3>
-                <p>${question.title}</p>
-                ${
-                  question.type === "text"
-                    ? '<input type="text" disabled placeholder="Текстовый ответ" class="modal-text-input">'
-                    : question.options
-                        .map(
-                          (option) => `
-                        <div class="modal-option">
-                          <input type="${question.type}" disabled>
-                          <label>${option}</label>
-                        </div>
-                      `
-                        )
-                        .join("")
-                }
-              </div>
-            `
-            )
-            .join("")}
-        </div>
-      </div>
-    `;
-
-    document.body.appendChild(modal);
-
-    // Закрытие модального окна
-    const closeBtn = modal.querySelector(".close-modal");
-    closeBtn.addEventListener("click", () => {
-      modal.remove();
-    });
-
-    // Закрытие по клику вне модального окна
-    modal.addEventListener("click", (e) => {
-      if (e.target === modal) {
-        modal.remove();
-      }
-    });
-  };
-
-  window.deleteSurvey = function (index) {
-    if (confirm("Вы уверены, что хотите удалить этот опрос?")) {
-      const surveys = JSON.parse(localStorage.getItem("surveys") || "[]");
-      surveys.splice(index, 1);
-      localStorage.setItem("surveys", JSON.stringify(surveys));
-      displaySurveys();
+    if (role === "admin" || (role === "teacher" && isAuthor)) {
+      buttons += `
+        <button onclick="viewResults('${survey.id}')" class="action-btn">Результаты</button>
+        <button onclick="editSurvey('${survey.id}')" class="action-btn">Редактировать</button>
+        <button onclick="deleteSurvey('${survey.id}')" class="action-btn delete">Удалить</button>
+      `;
     }
-  };
 
-  window.takeSurvey = function (index) {
-    const surveys = JSON.parse(localStorage.getItem("surveys") || "[]");
-    const survey = surveys[index];
+    buttons += `<button onclick="takeSurvey('${survey.id}')" class="action-btn">Пройти</button>`;
 
-    localStorage.setItem("currentSurvey", JSON.stringify(survey));
-    window.location.href = "take-survey.html";
-  };
+    return buttons;
+  }
 
-  window.viewResponses = function (index) {
-    const surveys = JSON.parse(localStorage.getItem("surveys") || "[]");
-    const survey = surveys[index];
-    localStorage.setItem("currentSurvey", JSON.stringify(survey));
-    window.location.href = "survey-responses.html";
-  };
+  // Загружаем опросы при загрузке страницы
+  await loadSurveys();
 });
+
+// Функции для работы с опросами
+async function takeSurvey(surveyId) {
+  window.location.href = `take-survey.html?id=${surveyId}`;
+}
+
+async function viewResults(surveyId) {
+  window.location.href = `survey-results.html?id=${surveyId}`;
+}
+
+async function editSurvey(surveyId) {
+  window.location.href = `edit-survey.html?id=${surveyId}`;
+}
+
+async function deleteSurvey(surveyId) {
+  if (!confirm("Вы уверены, что хотите удалить этот опрос?")) return;
+
+  try {
+    const response = await fetch("/.netlify/functions/api/delete-survey", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        surveyId,
+        authorEmail: localStorage.getItem("userEmail"),
+      }),
+    });
+
+    const data = await response.json();
+    if (data.success) {
+      location.reload();
+    } else {
+      alert(data.message || "Ошибка удаления опроса");
+    }
+  } catch (error) {
+    console.error("Ошибка:", error);
+    alert("Произошла ошибка при удалении опроса");
+  }
+}
+
+function logout() {
+  localStorage.removeItem("userEmail");
+  localStorage.removeItem("userRole");
+  window.location.href = "index.html";
+}

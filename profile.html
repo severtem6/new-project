@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Профиль пользователя</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <nav class="nav-header">
+        <a href="surveys.html" class="nav-link">Мои опросы</a>
+        <div class="nav-right">
+          <a href="profile.html" class="nav-link">Профиль</a>
+          <a href="#" onclick="logout()" class="nav-link">Выйти</a>
+        </div>
+      </nav>
+
+      <div class="profile-container">
+        <div class="profile-header">
+          <h1>Профиль пользователя</h1>
+        </div>
+
+        <div class="profile-info">
+          <div class="info-group">
+            <label>Email:</label>
+            <span id="user-email"></span>
+          </div>
+          <div class="info-group">
+            <label>Имя пользователя:</label>
+            <span id="username"></span>
+          </div>
+          <div class="info-group">
+            <label>Роль:</label>
+            <span id="user-role"></span>
+          </div>
+        </div>
+
+        <div class="surveys-section">
+          <h2>Созданные опросы</h2>
+          <div id="created-surveys-list" class="surveys-grid">
+            <!-- Сюда будут добавляться созданные опросы -->
+          </div>
+
+          <h2>Пройденные опросы</h2>
+          <div id="completed-surveys-list" class="surveys-grid">
+            <!-- Сюда будут добавляться пройденные опросы -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="profile.js"></script>
+  </body>
+</html>
