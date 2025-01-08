@@ -1,4 +1,5 @@
 [build]
+  command = "npm run build"
   functions = "functions"
   publish = "."
 
@@ -8,13 +9,13 @@
 [functions]
   node_bundler = "esbuild"
   external_node_modules = ["ioredis", "pg", "pg-pool"]
+  included_files = ["functions/config/redis.js", "functions/config/postgres.js"]
 
 [dev]
   framework = "#static"
   publish = "."
   port = 8888
   targetPort = 8888
-  command = "npm start"
 
 [[redirects]]
   from = "/api/*"

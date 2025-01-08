@@ -14,7 +14,7 @@
     "pg-pool": "^3.6.1"
   },
   "scripts": {
-    "start": "netlify dev",
-    "build": "# your build script"
+    "dev": "netlify dev",
+    "build": "echo 'No build required'"
   }
 }
